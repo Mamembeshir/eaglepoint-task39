@@ -87,7 +87,23 @@ const timezone = "America/Los_Angeles";
   assert(quote.notServiceable === true, "quote should be not serviceable when >20 miles");
 }
 
-// Scenario 4: same-day boundary at 3h59 => surcharge applies
+// Scenario 4: same-day boundary at 3h59 + priority selected => surcharge applies
+{
+  const quote = calculateQuote({
+    lineItems: [{ type: "service", serviceId: "s1", durationMinutes: 30, quantity: 1 }],
+    servicesById,
+    bundlesById,
+    slotStart: "2026-03-29T18:00:00.000Z",
+    bookingRequestedAt: "2026-03-29T14:01:00.000Z",
+    milesFromDepot: 5,
+    jurisdiction: taxOff,
+    organizationTimezone: timezone,
+    sameDayPriority: true,
+  });
+  assert(quote.totals.sameDaySurcharge === 25, "same-day surcharge should apply at 3h59");
+}
+
+// Scenario 5: same-day boundary at 3h59 + priority not selected => surcharge does not apply
 {
   const quote = calculateQuote({
     lineItems: [{ type: "service", serviceId: "s1", durationMinutes: 30, quantity: 1 }],
@@ -99,10 +115,10 @@ const timezone = "America/Los_Angeles";
     jurisdiction: taxOff,
     organizationTimezone: timezone,
   });
-  assert(quote.totals.sameDaySurcharge === 25, "same-day surcharge should apply at 3h59");
+  assert(quote.totals.sameDaySurcharge === 0, "same-day surcharge should not apply when priority is not selected");
 }
 
-// Scenario 5: same-day boundary at 4h01 => surcharge does not apply
+// Scenario 6: same-day boundary at 4h01 + priority selected => surcharge does not apply
 {
   const quote = calculateQuote({
     lineItems: [{ type: "service", serviceId: "s1", durationMinutes: 30, quantity: 1 }],
@@ -113,11 +129,12 @@ const timezone = "America/Los_Angeles";
     milesFromDepot: 5,
     jurisdiction: taxOff,
     organizationTimezone: timezone,
+    sameDayPriority: true,
   });
   assert(quote.totals.sameDaySurcharge === 0, "same-day surcharge should not apply at 4h01");
 }
 
-// Scenario 6: after-hours edge (18:30 local, 60m) => 30 minutes after-hours
+// Scenario 7: after-hours edge (18:30 local, 60m) => 30 minutes after-hours
 {
   const quote = calculateQuote({
     lineItems: [{ type: "service", serviceId: "s1", durationMinutes: 60, quantity: 1 }],
@@ -133,7 +150,7 @@ const timezone = "America/Los_Angeles";
   assertApprox(quote.totals.afterHoursSurcharge, 31.25, 0.01, "after-hours surcharge should match expected value");
 }
 
-// Scenario 7: tax required jurisdiction applies tax
+// Scenario 8: tax required jurisdiction applies tax
 {
   const quote = calculateQuote({
     lineItems: [{ type: "service", serviceId: "s1", durationMinutes: 30, quantity: 1 }],
@@ -148,7 +165,7 @@ const timezone = "America/Los_Angeles";
   assertApprox(quote.totals.tax, 7, 0.01, "tax should be applied when jurisdiction requires tax");
 }
 
-// Scenario 8: tax not required jurisdiction returns zero tax
+// Scenario 9: tax not required jurisdiction returns zero tax
 {
   const quote = calculateQuote({
     lineItems: [{ type: "service", serviceId: "s1", durationMinutes: 30, quantity: 1 }],

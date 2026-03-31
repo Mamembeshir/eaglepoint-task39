@@ -67,6 +67,7 @@ export function ComparePage() {
   const [serviceConfigs, setServiceConfigs] = useState<Record<string, ServiceConfig>>({});
   const [milesFromDepot, setMilesFromDepot] = useState<number>(10);
   const [jurisdictionId, setJurisdictionId] = useState('');
+  const [sameDayPriority, setSameDayPriority] = useState(false);
   const [slotId, setSlotId] = useState('');
   const [slotStartInput, setSlotStartInput] = useState(() => {
     const value = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -107,8 +108,9 @@ export function ComparePage() {
     }],
     milesFromDepot,
     jurisdictionId: effectiveJurisdictionId || fallbackJurisdictionId,
+    sameDayPriority,
     slotStart: slotStartIso,
-  } : null, [primaryServiceId, activeConfig?.durationMinutes, activeConfig?.headcount, activeConfig?.toolsMode, activeConfig?.addOnIds, milesFromDepot, effectiveJurisdictionId, fallbackJurisdictionId, slotStartIso]);
+  } : null, [primaryServiceId, activeConfig?.durationMinutes, activeConfig?.headcount, activeConfig?.toolsMode, activeConfig?.addOnIds, milesFromDepot, effectiveJurisdictionId, fallbackJurisdictionId, sameDayPriority, slotStartIso]);
   const quoteQuery = useDebouncedQuote(quoteInput);
   const exceedsServiceZone = milesFromDepot > 20;
   const selectedTravelZone = getTravelZoneId(milesFromDepot);
@@ -283,6 +285,19 @@ export function ComparePage() {
                   </div>
                 )}
                 {slotsQuery.isSuccess && slotsQuery.data.length === 0 && <Alert>No upcoming slots available for this service.</Alert>}
+              </div>
+
+              <div className="grid gap-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Priority</p>
+                <label className="flex min-h-11 items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
+                  <input
+                    type="checkbox"
+                    checked={sameDayPriority}
+                    onChange={(event) => setSameDayPriority(event.target.checked)}
+                  />
+                  <span className="text-sm text-foreground">Same-day priority (adds $25 when booking starts within 4 hours)</span>
+                </label>
+                <p className="text-xs text-muted-foreground">Priority surcharge applies only when this option is selected and the slot starts in less than 4 hours.</p>
               </div>
 
               <div className="grid gap-2">

@@ -33,6 +33,7 @@ export type QuoteRequest = {
   bookingRequestedAt?: string;
   milesFromDepot?: number;
   jurisdictionId?: string;
+  sameDayPriority?: boolean;
   signal?: AbortSignal;
 };
 

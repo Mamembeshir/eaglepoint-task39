@@ -105,6 +105,7 @@ function calculateQuote({
   milesFromDepot,
   jurisdiction,
   organizationTimezone,
+  sameDayPriority,
 }) {
   if (!Array.isArray(lineItems) || lineItems.length === 0) {
     throw createPricingError("INVALID_LINE_ITEMS", "lineItems must be a non-empty array");
@@ -245,7 +246,7 @@ function calculateQuote({
 
   const travelFee = travelBand.fee;
   const hoursUntilStart = (slotStartDate.getTime() - bookingRequestedDate.getTime()) / (60 * 60 * 1000);
-  const sameDaySurcharge = hoursUntilStart < 4 ? 25 : 0;
+  const sameDaySurcharge = sameDayPriority && hoursUntilStart < 4 ? 25 : 0;
 
   const afterHoursMinutes = calculateAfterHoursMinutes(
     slotStartDate,

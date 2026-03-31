@@ -27,6 +27,11 @@ npm start
 
 In production, set `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` explicitly; startup fails if they are missing.
 
+Pricing behavior notes:
+
+- Same-day surcharge is explicit: select `sameDayPriority` to apply the $25 surcharge when slot start is within 4 hours.
+- Sales tax is jurisdiction-driven (`jurisdictionId`); tax applies automatically when the selected jurisdiction requires tax.
+
 Frontend:
 
 ```bash
