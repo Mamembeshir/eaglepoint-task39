@@ -1,0 +1,1 @@
+import{j as n,k as o}from"./index-CaZvpPEd.js";function u({className:r,...e}){return n.jsx("input",{className:o("flex h-11 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring",r),...e})}export{u as I};

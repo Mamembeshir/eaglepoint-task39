@@ -1,0 +1,1 @@
+import{j as x,k as e}from"./index-CaZvpPEd.js";function t({children:a,className:m,width:s="wide"}){return x.jsx("main",{className:e("mx-auto w-full py-1 sm:py-2",s==="wide"?"max-w-6xl":"max-w-5xl",m),children:a})}export{t as P};

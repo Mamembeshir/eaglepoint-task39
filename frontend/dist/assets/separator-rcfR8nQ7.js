@@ -1,0 +1,1 @@
+import{j as e,k as n}from"./index-CaZvpPEd.js";function t({className:a,...s}){return e.jsx("label",{className:n("text-sm font-medium leading-none",a),...s})}function o(){return e.jsx("div",{className:"my-4 h-px w-full bg-border"})}export{t as L,o as S};

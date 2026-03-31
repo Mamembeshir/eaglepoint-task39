@@ -1,0 +1,1 @@
+import{u as s,j as e,N as r}from"./index-CaZvpPEd.js";import{S as a}from"./skeleton-Dq4l8ams.js";function n(){const t=s();return t.isLoading?e.jsx("div",{className:"flex min-h-screen items-center justify-center p-6",children:e.jsx(a,{className:"h-12 w-48"})}):t.user?e.jsx(r,{to:"/catalog",replace:!0}):e.jsx(r,{to:"/login",replace:!0})}export{n as RootRedirect};

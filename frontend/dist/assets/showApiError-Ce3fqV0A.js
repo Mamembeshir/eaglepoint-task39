@@ -1,0 +1,1 @@
+function a(t){const o="Something went wrong. Please try again.";if(t&&typeof t=="object"){const e=t,s=typeof e.code=="string"?e.code:"ERROR",n=typeof e.message=="string"?e.message:o;return`${s}: ${n}`}return o}export{a as s};
