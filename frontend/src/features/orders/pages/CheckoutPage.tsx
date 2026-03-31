@@ -50,6 +50,8 @@ export function CheckoutPage() {
   const [jurisdictionId, setJurisdictionId] = useState(quoteDraft.jurisdictionId && quoteDraft.jurisdictionId !== 'tax-exempt' ? quoteDraft.jurisdictionId : '');
   const [slotId, setSlotId] = useState(quoteDraft.slotId ?? '');
   const [milesFromDepot, setMilesFromDepot] = useState<number>(quoteDraft.milesFromDepot ?? 10);
+  const [sameDayPriority, setSameDayPriority] = useState(Boolean(quoteDraft.sameDayPriority));
+  const [taxEnabled, setTaxEnabled] = useState(quoteDraft.taxEnabled ?? true);
   const [slotStartInput, setSlotStartInput] = useState(() => {
     if (!quoteDraft.slotStart) return new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16);
     return new Date(quoteDraft.slotStart).toISOString().slice(0, 16);
@@ -78,6 +80,9 @@ export function CheckoutPage() {
   const jurisdictionOptions = jurisdictionsQuery.data ?? [];
   const fallbackJurisdictionId = jurisdictionOptions[0]?.id ?? '';
   const effectiveJurisdictionId = jurisdictionId || fallbackJurisdictionId;
+  const selectedJurisdiction = jurisdictionOptions.find((item) => item.id === effectiveJurisdictionId) ?? null;
+  const taxLockedByJurisdiction = Boolean(selectedJurisdiction?.taxRequired);
+  const effectiveTaxEnabled = taxLockedByJurisdiction ? true : taxEnabled;
   const hasValidSlotId = Boolean(slotId);
   const slotStartDate = new Date(slotStartInput);
   const slotStartIso = Number.isNaN(slotStartDate.getTime()) ? quoteDraft.slotStart || new Date().toISOString() : slotStartDate.toISOString();
@@ -106,10 +111,12 @@ export function CheckoutPage() {
         slotStart: slotStartIso,
         milesFromDepot,
         jurisdictionId: effectiveJurisdictionId,
+        sameDayPriority,
+        taxEnabled: effectiveTaxEnabled,
       };
     }
     return null;
-  }, [quoteDraft, slotId, slotStartIso, milesFromDepot, effectiveJurisdictionId]);
+  }, [quoteDraft, slotId, slotStartIso, milesFromDepot, effectiveJurisdictionId, sameDayPriority, effectiveTaxEnabled]);
 
   const liveQuoteInput = useMemo(
     () => (lineItems.length
@@ -119,9 +126,11 @@ export function CheckoutPage() {
           bookingRequestedAt: quoteDraft.bookingRequestedAt || new Date().toISOString(),
           milesFromDepot,
           jurisdictionId: effectiveJurisdictionId,
+          sameDayPriority,
+          taxEnabled: effectiveTaxEnabled,
         }
       : null),
-    [lineItems, slotStartIso, quoteDraft.bookingRequestedAt, milesFromDepot, effectiveJurisdictionId],
+    [lineItems, slotStartIso, quoteDraft.bookingRequestedAt, milesFromDepot, effectiveJurisdictionId, sameDayPriority, effectiveTaxEnabled],
   );
   const liveQuote = useDebouncedQuote(liveQuoteInput);
 
@@ -199,6 +208,17 @@ export function CheckoutPage() {
               {slotsQuery.isSuccess && slotsQuery.data.length === 0 && <Alert>No upcoming slots available for this service.</Alert>}
             </div>
             <div className="mt-2 grid gap-2 rounded-xl border border-border bg-background p-3 sm:max-w-md">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Priority</p>
+              <label className="flex min-h-11 items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
+                <input
+                  type="checkbox"
+                  checked={sameDayPriority}
+                  onChange={(event) => setSameDayPriority(event.target.checked)}
+                />
+                <span className="text-sm text-foreground">Same-day priority (adds $25 when booking starts within 4 hours)</span>
+              </label>
+            </div>
+            <div className="mt-2 grid gap-2 rounded-xl border border-border bg-background p-3 sm:max-w-md">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Travel zone</p>
               <div className="grid gap-2">
                 <div className="grid gap-2 sm:grid-cols-3">
@@ -239,7 +259,20 @@ export function CheckoutPage() {
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-muted-foreground">Tax is applied automatically when required by the selected jurisdiction.</p>
+              <label className="flex min-h-11 items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
+                <input
+                  type="checkbox"
+                  checked={effectiveTaxEnabled}
+                  disabled={taxLockedByJurisdiction}
+                  onChange={(event) => setTaxEnabled(event.target.checked)}
+                />
+                <span className="text-sm text-foreground">Apply sales tax</span>
+              </label>
+              <p className="text-xs text-muted-foreground">
+                {taxLockedByJurisdiction
+                  ? 'Tax is required for the selected jurisdiction and cannot be disabled.'
+                  : 'Tax toggle is available because this jurisdiction is tax-exempt by policy.'}
+              </p>
             </div>
 
             <p className="body-base">Total: {liveQuote.data?.total ?? quote?.total ?? '--'}</p>

@@ -34,6 +34,7 @@ export type QuoteRequest = {
   milesFromDepot?: number;
   jurisdictionId?: string;
   sameDayPriority?: boolean;
+  taxEnabled?: boolean;
   signal?: AbortSignal;
 };
 

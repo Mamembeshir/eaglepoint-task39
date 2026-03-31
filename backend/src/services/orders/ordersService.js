@@ -72,6 +72,8 @@ function createOrdersService(deps) {
       bookingRequestedAt,
       milesFromDepot,
       jurisdictionId,
+      sameDayPriority,
+      taxEnabled,
       quoteSignature,
       clientQuoteTotal,
       parseObjectIdOrNull,
@@ -94,6 +96,8 @@ function createOrdersService(deps) {
       bookingRequestedAt,
       milesFromDepot,
       jurisdictionId,
+      sameDayPriority,
+      taxEnabled,
     });
 
     if (quote.notServiceable) {

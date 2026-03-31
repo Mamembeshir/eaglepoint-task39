@@ -31,7 +31,15 @@ export function useDebouncedQuote(input: QuoteRequest | null) {
       window.clearTimeout(timer);
       abortRef.current?.abort();
     };
-  }, [input?.bookingRequestedAt, input?.jurisdictionId, input?.milesFromDepot, input?.slotStart, JSON.stringify(input?.lineItems)]);
+  }, [
+    input?.bookingRequestedAt,
+    input?.jurisdictionId,
+    input?.milesFromDepot,
+    input?.slotStart,
+    input?.sameDayPriority,
+    input?.taxEnabled,
+    JSON.stringify(input?.lineItems),
+  ]);
 
   return { data, isLoading, error };
 }

@@ -35,6 +35,7 @@ function createQuoteService({ calculateQuote, createError, getDatabase, parseObj
       milesFromDepot,
       jurisdictionId,
       sameDayPriority,
+      taxEnabled,
     }) => {
       if (!jurisdictionId || typeof jurisdictionId !== "string") {
         throw createError(400, "INVALID_JURISDICTION", "jurisdictionId is required");
@@ -104,6 +105,7 @@ function createQuoteService({ calculateQuote, createError, getDatabase, parseObj
           jurisdiction,
           organizationTimezone: settings?.organizationTimezone || "America/Los_Angeles",
           sameDayPriority: Boolean(sameDayPriority),
+          taxEnabled,
         });
       } catch (error) {
         throw createError(400, error.code || "INVALID_QUOTE", error.message);

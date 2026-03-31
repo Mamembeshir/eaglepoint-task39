@@ -26,6 +26,8 @@ export function buildQuotePayload(draft: QuoteDraft) {
     slotStart: draft.slotStart || undefined,
     milesFromDepot: draft.milesFromDepot ?? undefined,
     jurisdictionId: draft.jurisdictionId || undefined,
+    sameDayPriority: Boolean(draft.sameDayPriority),
+    taxEnabled: draft.taxEnabled,
     quoteSignature: draft.quoteSignature,
     spec: draft.spec,
   };

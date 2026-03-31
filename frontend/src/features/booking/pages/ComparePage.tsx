@@ -68,6 +68,7 @@ export function ComparePage() {
   const [milesFromDepot, setMilesFromDepot] = useState<number>(10);
   const [jurisdictionId, setJurisdictionId] = useState('');
   const [sameDayPriority, setSameDayPriority] = useState(false);
+  const [taxEnabled, setTaxEnabled] = useState(true);
   const [slotId, setSlotId] = useState('');
   const [slotStartInput, setSlotStartInput] = useState(() => {
     const value = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -82,6 +83,9 @@ export function ComparePage() {
   const jurisdictionOptions = jurisdictionsQuery.data ?? [];
   const fallbackJurisdictionId = jurisdictionOptions[0]?.id ?? '';
   const effectiveJurisdictionId = jurisdictionId || fallbackJurisdictionId;
+  const selectedJurisdiction = jurisdictionOptions.find((item) => item.id === effectiveJurisdictionId) ?? null;
+  const taxLockedByJurisdiction = Boolean(selectedJurisdiction?.taxRequired);
+  const effectiveTaxEnabled = taxLockedByJurisdiction ? true : taxEnabled;
   const slotStartDate = new Date(slotStartInput);
   const slotStartIso = Number.isNaN(slotStartDate.getTime()) ? new Date().toISOString() : slotStartDate.toISOString();
   const hasValidSlotId = Boolean(slotId);
@@ -109,8 +113,9 @@ export function ComparePage() {
     milesFromDepot,
     jurisdictionId: effectiveJurisdictionId || fallbackJurisdictionId,
     sameDayPriority,
+    taxEnabled: effectiveTaxEnabled,
     slotStart: slotStartIso,
-  } : null, [primaryServiceId, activeConfig?.durationMinutes, activeConfig?.headcount, activeConfig?.toolsMode, activeConfig?.addOnIds, milesFromDepot, effectiveJurisdictionId, fallbackJurisdictionId, sameDayPriority, slotStartIso]);
+  } : null, [primaryServiceId, activeConfig?.durationMinutes, activeConfig?.headcount, activeConfig?.toolsMode, activeConfig?.addOnIds, milesFromDepot, effectiveJurisdictionId, fallbackJurisdictionId, sameDayPriority, effectiveTaxEnabled, slotStartIso]);
   const quoteQuery = useDebouncedQuote(quoteInput);
   const exceedsServiceZone = milesFromDepot > 20;
   const selectedTravelZone = getTravelZoneId(milesFromDepot);
@@ -313,7 +318,20 @@ export function ComparePage() {
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-muted-foreground">Tax is applied automatically when required by the selected jurisdiction.</p>
+                <label className="flex min-h-11 items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
+                  <input
+                    type="checkbox"
+                    checked={effectiveTaxEnabled}
+                    disabled={taxLockedByJurisdiction}
+                    onChange={(event) => setTaxEnabled(event.target.checked)}
+                  />
+                  <span className="text-sm text-foreground">Apply sales tax</span>
+                </label>
+                <p className="text-xs text-muted-foreground">
+                  {taxLockedByJurisdiction
+                    ? 'Tax is required for the selected jurisdiction and cannot be disabled.'
+                    : 'Tax toggle is available because this jurisdiction is tax-exempt by policy.'}
+                </p>
               </div>
 
               <div className="grid gap-2">
@@ -438,6 +456,8 @@ export function ComparePage() {
               quoteSignature: quoteQuery.data.quoteSignature ?? null,
               jurisdictionId: effectiveJurisdictionId || fallbackJurisdictionId,
               milesFromDepot,
+              sameDayPriority,
+              taxEnabled: effectiveTaxEnabled,
             });
             navigate('/checkout');
             }} disabled={!hasValidSlotId}>Checkout</Button>

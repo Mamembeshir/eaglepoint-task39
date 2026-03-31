@@ -215,8 +215,15 @@ function createCustomerController(deps) {
 
     createQuote: async (req, res, next) => {
       try {
-        const { lineItems, slotStart, bookingRequestedAt, milesFromDepot, jurisdictionId, sameDayPriority } =
-          req.body || {};
+        const {
+          lineItems,
+          slotStart,
+          bookingRequestedAt,
+          milesFromDepot,
+          jurisdictionId,
+          sameDayPriority,
+          taxEnabled,
+        } = req.body || {};
 
         const quote = await buildQuoteFromRequestPayload({
           lineItems,
@@ -225,6 +232,7 @@ function createCustomerController(deps) {
           milesFromDepot,
           jurisdictionId,
           sameDayPriority,
+          taxEnabled,
         });
 
         return res.status(200).json({

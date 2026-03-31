@@ -7,6 +7,8 @@ export type OrderCreateInput = {
   bookingRequestedAt?: string;
   milesFromDepot?: number;
   jurisdictionId?: string;
+  sameDayPriority?: boolean;
+  taxEnabled?: boolean;
   quoteSignature: string;
 };
 

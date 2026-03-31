@@ -179,4 +179,26 @@ const timezone = "America/Los_Angeles";
   });
   assert(quote.totals.tax === 0, "tax should be zero when jurisdiction does not require tax");
 }
+
+// Scenario 10: required-tax jurisdiction rejects disabling tax
+{
+  let threw = false;
+  try {
+    calculateQuote({
+      lineItems: [{ type: "service", serviceId: "s1", durationMinutes: 30, quantity: 1 }],
+      servicesById,
+      bundlesById,
+      slotStart: "2026-03-29T18:00:00.000Z",
+      bookingRequestedAt: "2026-03-29T10:00:00.000Z",
+      milesFromDepot: 10,
+      jurisdiction: taxOn,
+      organizationTimezone: timezone,
+      taxEnabled: false,
+    });
+  } catch (error) {
+    threw = true;
+    assert(error.code === "INVALID_TAX_OVERRIDE", "tax override should fail with INVALID_TAX_OVERRIDE");
+  }
+  assert(threw, "required-tax jurisdiction should reject taxEnabled=false");
+}
 '

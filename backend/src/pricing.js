@@ -106,6 +106,7 @@ function calculateQuote({
   jurisdiction,
   organizationTimezone,
   sameDayPriority,
+  taxEnabled,
 }) {
   if (!Array.isArray(lineItems) || lineItems.length === 0) {
     throw createPricingError("INVALID_LINE_ITEMS", "lineItems must be a non-empty array");
@@ -257,7 +258,11 @@ function calculateQuote({
   const afterHoursSurcharge = perMinuteLabor * afterHoursMinutes * 0.5;
 
   const subtotalBeforeTax = laborSubtotal + travelFee + sameDaySurcharge + afterHoursSurcharge;
-  const taxRate = jurisdiction?.taxRequired ? Number(jurisdiction.taxRate || 0) : 0;
+  if (jurisdiction?.taxRequired && taxEnabled === false) {
+    throw createPricingError("INVALID_TAX_OVERRIDE", "tax cannot be disabled for this jurisdiction");
+  }
+  const effectiveTaxEnabled = jurisdiction?.taxRequired ? true : Boolean(taxEnabled);
+  const taxRate = effectiveTaxEnabled ? Number(jurisdiction?.taxRate || 0) : 0;
   const tax = subtotalBeforeTax * taxRate;
   const total = subtotalBeforeTax + tax;
 
@@ -287,6 +292,7 @@ function calculateQuote({
     jurisdiction: {
       id: jurisdiction?._id || null,
       taxRequired: Boolean(jurisdiction?.taxRequired),
+      taxEnabled: effectiveTaxEnabled,
       taxRate,
     },
   };

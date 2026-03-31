@@ -27,6 +27,8 @@ export type QuoteDraft = {
   quoteSignature: string | null;
   jurisdictionId: string | null;
   milesFromDepot: number | null;
+  sameDayPriority?: boolean;
+  taxEnabled?: boolean;
 };
 
 const BookingContext = createContext<BookingState | null>(null);
@@ -42,6 +44,8 @@ export function BookingProvider({ children }: PropsWithChildren) {
     quoteSignature: null,
     jurisdictionId: null,
     milesFromDepot: null,
+    sameDayPriority: false,
+    taxEnabled: true,
   });
 
   const value = useMemo<BookingState>(() => ({
